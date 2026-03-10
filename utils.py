@@ -47,7 +47,7 @@ def pre_process():
 def tt_split(df):
     X = df.drop(columns=["koi_disposition", "rowid"])
     y = df["koi_disposition"].replace({"CONFIRMED": 1, "FALSE POSITIVE": 0}).astype(int)
-    return train_test_split(X, y, test_size=0.2, random_state=42)
+    return X, y, *train_test_split(X, y, test_size=0.2, random_state=42)
 
 def build_pipeline():
     # using median imputation for the SimpleImputer because 
