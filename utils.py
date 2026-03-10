@@ -13,6 +13,7 @@ def pre_process():
     df = raw_df.copy()
 
     # removing leakage - they contain the answer for the classifier already, as well as admin/meta info
+    # koi_score is the biggest issue because it provides NASA's precomputed likelihood score for likelihood of being an exoplanet
     df = df.drop(columns=["koi_score", "koi_pdisposition", "koi_fpflag_nt", "koi_fpflag_ss", 
                         "koi_fpflag_co", "koi_fpflag_ec", "koi_disp_prov", "koi_vet_stat", 
                         "koi_vet_date", "koi_comment"])
@@ -43,7 +44,7 @@ def pre_process():
     # final 
     df_cand = df[df["koi_disposition"] == "CANDIDATE"]
     df = df[df["koi_disposition"] != "CANDIDATE"]
-    return df, df_cand, df_misc
+    return raw_df, df, df_cand, df_misc
 
 def tt_split(df):
     X = df.drop(columns=["koi_disposition", "rowid"])
@@ -62,7 +63,7 @@ def build_xgb_pipeline(y):
     # using median imputation for the SimpleImputer because 
     imputer = SimpleImputer(strategy='median')
     # XGBClassifier doesn't have class_weight='balanced' like scikit-learn models, but they have alternatives with little more work
-    model = XGBClassifier(n_estimators=10, random_state=42, scale_pos_weight = (y==0).sum()/(y==1).sum())
+    model = XGBClassifier(n_estimators=100, random_state=42, scale_pos_weight = (y==0).sum()/(y==1).sum())
     pipeline = Pipeline(steps=[('imputer', imputer), ('XGB_model', model)])
     return pipeline
 
@@ -71,9 +72,16 @@ def fit_predict(pipeline, X_train, y_train, X_test):
     y_pred = pipeline.predict(X_test)
     return y_pred
 
-def pred_cand(pipeline, df_cand):
-    X_cand = df_cand.drop(columns=["koi_disposition", "rowid"])
+def pred_cand(pipeline, df_cand, df_misc, raw_df):
+    df_misc_cand = df_misc[raw_df["koi_disposition"] == "CANDIDATE"]
+    df_cand = df_cand.drop(columns=["koi_disposition", "rowid"])
+    cand_pred = pipeline.predict(df_cand)
+    cand_prob = pipeline.predict_proba(df_cand)[:,1]
+    df_cand.insert(loc=2, column="prediction", value=cand_pred)
+    df_cand.insert(loc=2, column="prediction_prob", value=cand_prob)
+    df_cand.insert(loc=2, column="kepoi_name", value=df_misc_cand["kepoi_name"].values)
 
-    cand_pred = pipeline.predict(X_cand)
-    cand_prob = pipeline.predict_proba(X_cand)[:,1]
-    return cand_pred, cand_prob
+    koi_disp_map = {0: "NOT EXOPLANET", 1: "EXOPLANET"}
+    df_cand["prediction"] = df_cand["prediction"].map(koi_disp_map)
+
+    return cand_pred, cand_prob, df_cand

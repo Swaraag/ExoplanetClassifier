@@ -2,7 +2,7 @@ from utils import pre_process, tt_split, build_xgb_pipeline, fit_predict, pred_c
 from sklearn.metrics import classification_report, confusion_matrix, roc_auc_score, accuracy_score
 from sklearn.model_selection import cross_val_score
 
-df, df_candidates, df_misc = pre_process()
+raw_df, df, df_candidates, df_misc = pre_process()
 
 X, y, X_train, X_test, y_train, y_test = tt_split(df)
 pipeline = build_xgb_pipeline(y)
@@ -14,9 +14,10 @@ print("Classification report", classification_report(y_test, y_pred))
 print(confusion_matrix(y_test, y_pred))
 print("ROC-AUC:", roc_auc_score(y_test, pipeline.predict_proba(X_test)[:,1]))
 
-cand_pred, cand_prob = pred_cand(pipeline, df_candidates)
+cand_pred, cand_prob, df_cand = pred_cand(pipeline, df_candidates, df_misc, raw_df)
 print("Predictions:", cand_pred)
 print("Probabilities", cand_prob)
+print(df_cand)
 
 cv_scores = cross_val_score(pipeline, X, y, cv=5, scoring='roc_auc')
 print(cv_scores)
