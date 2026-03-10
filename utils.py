@@ -4,6 +4,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
 from sklearn.ensemble import RandomForestClassifier
 import numpy as np
+from xgboost import XGBClassifier
 
 def pre_process():
     """Removes unnecessary columns from the df data and stores other potentially important columns in other dataframes"""
@@ -49,12 +50,20 @@ def tt_split(df):
     y = df["koi_disposition"].replace({"CONFIRMED": 1, "FALSE POSITIVE": 0}).astype(int)
     return X, y, *train_test_split(X, y, test_size=0.2, random_state=42)
 
-def build_pipeline():
+def build_rfc_pipeline():
     # using median imputation for the SimpleImputer because 
     imputer = SimpleImputer(strategy='median')
     # class_weight = 'balanced' solves the problem where there are more False positives than there are confirmed values
     model = RandomForestClassifier(n_estimators=100, class_weight="balanced", random_state=42)
     pipeline = Pipeline(steps=[('imputer', imputer), ('RFC_model', model)])
+    return pipeline
+
+def build_xgb_pipeline(y):
+    # using median imputation for the SimpleImputer because 
+    imputer = SimpleImputer(strategy='median')
+    # XGBClassifier doesn't have class_weight='balanced' like scikit-learn models, but they have alternatives with little more work
+    model = XGBClassifier(n_estimators=10, random_state=42, scale_pos_weight = (y==0).sum()/(y==1).sum())
+    pipeline = Pipeline(steps=[('imputer', imputer), ('XGB_model', model)])
     return pipeline
 
 def fit_predict(pipeline, X_train, y_train, X_test):

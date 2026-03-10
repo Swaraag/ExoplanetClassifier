@@ -1,11 +1,11 @@
-from utils import pre_process, tt_split, build_pipeline, fit_predict, pred_cand
+from utils import pre_process, tt_split, build_rfc_pipeline, fit_predict, pred_cand
 from sklearn.metrics import classification_report, confusion_matrix, roc_auc_score, accuracy_score
 from sklearn.model_selection import cross_val_score
 
 df, df_candidates, df_misc = pre_process()
 
 X, y, X_train, X_test, y_train, y_test = tt_split(df)
-pipeline = build_pipeline()
+pipeline = build_rfc_pipeline()
 y_pred = fit_predict(pipeline, X_train, y_train, X_test)
 
 accuracy = accuracy_score(y_test, y_pred)
