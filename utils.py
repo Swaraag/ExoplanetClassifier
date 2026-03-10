@@ -3,13 +3,13 @@ from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
 from sklearn.ensemble import RandomForestClassifier
+import numpy as np
 
 def pre_process():
     """Removes unnecessary columns from the df data and stores other potentially important columns in other dataframes"""
     raw_df = pd.read_csv("cumulative_2026.03.09_14.43.47.csv", comment="#")
     # storing candidates separately for testing at the end
-    df_candidates = raw_df[raw_df["koi_disposition"] == "CANDIDATE"]
-    df = raw_df[raw_df["koi_disposition"] != "CANDIDATE"]
+    df = raw_df.copy()
 
     # removing leakage - they contain the answer for the classifier already, as well as admin/meta info
     df = df.drop(columns=["koi_score", "koi_pdisposition", "koi_fpflag_nt", "koi_fpflag_ss", 
@@ -38,7 +38,11 @@ def pre_process():
 
     # these 4 columns only have null values anyways
     df = df.drop(columns=["koi_sage", "koi_ingress", "koi_model_chisq", "koi_model_dof"])
-    return df, df_candidates, df_misc
+
+    # final 
+    df_cand = df[df["koi_disposition"] == "CANDIDATE"]
+    df = df[df["koi_disposition"] != "CANDIDATE"]
+    return df, df_cand, df_misc
 
 def tt_split(df):
     X = df.drop(columns=["koi_disposition", "rowid"])
@@ -57,3 +61,10 @@ def fit_predict(pipeline, X_train, y_train, X_test):
     pipeline.fit(X_train, y_train)
     y_pred = pipeline.predict(X_test)
     return y_pred
+
+def pred_cand(pipeline, df_cand):
+    X_cand = df_cand.drop(columns=["koi_disposition", "rowid"])
+
+    cand_pred = pipeline.predict(X_cand)
+    cand_prob = pipeline.predict_proba(X_cand)[:,1]
+    return cand_pred, cand_prob
