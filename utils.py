@@ -85,3 +85,4 @@ def pred_cand(pipeline, df_cand, df_misc, raw_df):
     df_cand["prediction"] = df_cand["prediction"].map(koi_disp_map)
 
     return cand_pred, cand_prob, df_cand
+
