@@ -1,5 +1,8 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
+from sklearn.pipeline import Pipeline
+from sklearn.impute import SimpleImputer
+from sklearn.ensemble import RandomForestClassifier
 
 def pre_process():
     """Removes unnecessary columns from the df data and stores other potentially important columns in other dataframes"""
@@ -37,5 +40,20 @@ def pre_process():
     df = df.drop(columns=["koi_sage", "koi_ingress", "koi_model_chisq", "koi_model_dof"])
     return df, df_candidates, df_misc
 
-def training():
-    pass
+def tt_split(df):
+    X = df.drop(columns=["koi_disposition", "rowid"])
+    y = df["koi_disposition"].replace({"CONFIRMED": 1, "FALSE POSITIVE": 0}).astype(int)
+    return train_test_split(X, y, test_size=0.2, random_state=42)
+
+def build_pipeline():
+    # using median imputation for the SimpleImputer because 
+    imputer = SimpleImputer(strategy='median')
+    # class_weight = 'balanced' solves the problem where there are more False positives than there are confirmed values
+    model = RandomForestClassifier(n_estimators=100, class_weight="balanced", random_state=42)
+    pipeline = Pipeline(steps=[('imputer', imputer), ('RFC_model', model)])
+    return pipeline
+
+def fit_predict(pipeline, X_train, y_train, X_test):
+    pipeline.fit(X_train, y_train)
+    y_pred = pipeline.predict(X_test)
+    return y_pred
