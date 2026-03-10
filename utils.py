@@ -1,4 +1,5 @@
 import pandas as pd
+from sklearn.model_selection import train_test_split
 
 def pre_process():
     """Removes unnecessary columns from the df data and stores other potentially important columns in other dataframes"""
@@ -35,3 +36,6 @@ def pre_process():
     # these 4 columns only have null values anyways
     df = df.drop(columns=["koi_sage", "koi_ingress", "koi_model_chisq", "koi_model_dof"])
     return df, df_candidates, df_misc
+
+def training():
+    pass
