@@ -15,3 +15,45 @@ Missing a real planet (a false negative) is a worse outcome, however, and the as
 [^1]: NASA, [Kepler Mission Overview](https://science.nasa.gov/mission/kepler/)
 [^2]: University of Nebraska-Lincoln, [The Transit Method](https://astro.unl.edu/newRTs/Transits/background/Transit1.html)
 [^3]: Fressin et al. (2013), [False Positive Rate of Kepler](https://arxiv.org/abs/1301.0842)
+
+## How to Run
+
+**Dependencies**
+
+This project requires [libomp](https://formulae.brew.sh/formula/libomp) (OpenMP runtime) for XGBoost to function correctly. On macOS:
+```bash
+brew install libomp
+```
+
+Then install Python dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+Jupyter Notebook is also required to run `playground.ipynb`. Install via:
+```bash
+pip install jupyter
+```
+
+or use [Anaconda](https://www.anaconda.com/).
+
+---
+
+**Running the Models**
+
+Train and evaluate the Random Forest classifier (prints results to terminal):
+```bash
+python randomforestclf.py
+```
+
+Train and evaluate the XGBoost classifier (prints results to terminal):
+```bash
+python xgboostclf.py
+```
+
+**Figures & Analysis**
+
+All figures and visualizations are generated and stored in `playground.ipynb`. Launch with:
+```bash
+jupyter notebook playground.ipynb
+```
