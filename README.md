@@ -38,7 +38,7 @@ XGBoost outperformed Random Forest across every metric. Most notably, its false 
 ## Key Findings
 
 - XGBoost flagged **394 of 1,979 unresolved candidates** as likely planets
-- **152 of those 394** fall in the sub-Neptune range ($1.7$–$3.5\ R_\oplus$), peaking around $2.0$–$2.1\ R_\oplus$, consistent with known planetary occurrence rates
+- **152 of those 394** fall in the sub-Neptune range ($1.7$–$3.5 \ R_\oplus$), peaking around $2.0$–$2.1 \ R_\oplus$, consistent with known planetary occurrence rates
 - **320 of 394** flagged candidates (81%) have NASA disposition scores above 0.90, indicating strong agreement with NASA's own vetting pipeline
 - **34 candidates** where XGBoost and NASA disagree (scores below 0.5) are the most actionable: either the model caught something NASA's pipeline missed, or vice versa
 - SHAP analysis confirmed predictions are driven by physically meaningful features: small planet radius and moderate SNR push strongly toward `CONFIRMED`, while large radius and high SNR push toward `FALSE POSITIVE`
