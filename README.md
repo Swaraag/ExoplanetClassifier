@@ -47,7 +47,7 @@ XGBoost outperformed Random Forest across every metric. Most notably, its false 
 
 ## Full Writeup
 
-A full writeup covering data, methods, results, SHAP analysis, and candidate predictions is available [here](writeup.pdf).
+A full writeup covering data, methods, results, SHAP analysis, and candidate predictions is available [here](exoplanet_classification_paper.pdf).
 
 ---
 
