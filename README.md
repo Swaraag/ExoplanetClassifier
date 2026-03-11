@@ -16,6 +16,45 @@ Missing a real planet (a false negative) is a worse outcome, however, and the as
 [^2]: University of Nebraska-Lincoln, [The Transit Method](https://astro.unl.edu/newRTs/Transits/background/Transit1.html)
 [^3]: Fressin et al. (2013), [False Positive Rate of Kepler](https://arxiv.org/abs/1301.0842)
 
+## Dataset
+
+The dataset is the [Kepler Objects of Interest (KOI) cumulative table](https://exoplanetarchive.ipac.caltech.edu/cgi-bin/TblView/nph-tblView?app=ExoTbls&config=cumulative) from the NASA Exoplanet Archive. Each row corresponds to a transit signal detected by Kepler, labeled as `CONFIRMED` (2,746), `FALSE POSITIVE` (4,839), or `CANDIDATE` (1,979). The confirmed and false positive rows form the labeled training set; candidates are set aside for final prediction.
+
+The CSV is included in the repository as `cumulative_2026.03.09_14.43.47.csv`.
+
+---
+
+## Results
+
+| Model | Accuracy | ROC-AUC | CV AUC | False Negatives |
+|---|---|---|---|---|
+| Random Forest | 92.7% | 0.980 | 0.9780 ± 0.015 | 53 |
+| XGBoost | 94.5% | 0.986 | 0.9807 ± 0.014 | 28 |
+
+XGBoost outperformed Random Forest across every metric. Most notably, its false negative rate was 5.0% vs. Random Forest's 9.5%, nearly halving the rate of missed planets, which is the primary error cost asymmetry this project optimizes for.
+
+---
+
+## Key Findings
+
+- XGBoost flagged **394 of 1,979 unresolved candidates** as likely planets
+- **152 of those 394** fall in the sub-Neptune range ($1.7$–$3.5\ R_\oplus$), peaking around $2.0$–$2.1\ R_\oplus$, consistent with known planetary occurrence rates
+- **320 of 394** flagged candidates (81%) have NASA disposition scores above 0.90, indicating strong agreement with NASA's own vetting pipeline
+- **34 candidates** where XGBoost and NASA disagree (scores below 0.5) are the most actionable: either the model caught something NASA's pipeline missed, or vice versa
+- SHAP analysis confirmed predictions are driven by physically meaningful features: small planet radius and moderate SNR push strongly toward `CONFIRMED`, while large radius and high SNR push toward `FALSE POSITIVE`
+
+---
+
+## Full Writeup
+
+A full writeup covering data, methods, results, SHAP analysis, and candidate predictions is available [here](writeup.pdf).
+
+---
+
+## Tech Stack
+
+Python, scikit-learn, XGBoost, SHAP, pandas, matplotlib
+
 ## How to Run
 
 **Dependencies**
